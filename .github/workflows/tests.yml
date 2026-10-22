@@ -8,7 +8,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   test:
@@ -32,10 +32,28 @@ jobs:
       - name: Run tests
         run: python -m pytest
 
-      - name: Upload Allure results
+      - name: Load Allure history
+        if: always()
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Generate Allure report
+        if: always()
+        uses: simple-elf/allure-report-action@v1.15
+        with:
+          allure_results: allure-results
+          allure_report: allure-report
+          gh_pages: gh-pages
+          allure_history: allure-history
+
+      - name: Upload Allure HTML report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results
-          path: allure-results/
-          if-no-files-found: ignore
+          name: allure-html-report
+          path: allure-report/
+          if-no-files-found: warn
+          retention-days: 14
