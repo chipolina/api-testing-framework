@@ -4,9 +4,10 @@ from pathlib import Path
 
 import pytest
 import requests
+import psycopg
 
 from clients.api_client import ApiClient
-from config import BASE_URL
+from config import BASE_URL, DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
 
 
 @pytest.fixture
@@ -50,3 +51,26 @@ def write_allure_environment():
         environment,
         encoding="utf-8",
     )
+
+
+@pytest.fixture
+def db_connection():
+    connection = psycopg.connect(
+        host=DB_HOST,
+        port=DB_PORT,
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD,
+    )
+
+    yield connection
+
+    connection.close()
+
+
+@pytest.fixture
+def db_transaction(db_connection):
+    try:
+        yield db_connection
+    finally:
+        db_connection.rollback()
