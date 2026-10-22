@@ -1,0 +1,53 @@
+CREATE TABLE IF NOT EXISTS departments (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS employees (
+    id INTEGER PRIMARY KEY,
+    full_name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    department_id INTEGER NOT NULL REFERENCES departments(id),
+    salary NUMERIC(10, 2) NOT NULL CHECK (salary > 0)
+);
+
+CREATE TABLE IF NOT EXISTS projects (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    owner_id INTEGER NOT NULL REFERENCES employees(id)
+);
+
+CREATE TABLE IF NOT EXISTS tasks (
+    id INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('todo', 'in_progress', 'done')),
+    project_id INTEGER NOT NULL REFERENCES projects(id)
+);
+
+INSERT INTO departments (id, name) VALUES
+    (1, 'QA'),
+    (2, 'Engineering'),
+    (3, 'Product')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO employees (id, full_name, email, department_id, salary) VALUES
+    (1, 'Alex Morgan', 'alex.morgan@example.test', 1, 62000.00),
+    (2, 'Sam Taylor', 'sam.taylor@example.test', 1, 58000.00),
+    (3, 'Jordan Lee', 'jordan.lee@example.test', 2, 74000.00),
+    (4, 'Riley Chen', 'riley.chen@example.test', 2, 71000.00),
+    (5, 'Casey Brown', 'casey.brown@example.test', 3, 65000.00)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO projects (id, name, owner_id) VALUES
+    (1, 'API Test Framework', 1),
+    (2, 'Customer Portal', 3),
+    (3, 'Release Readiness', 2)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO tasks (id, title, status, project_id) VALUES
+    (1, 'Add database fixtures', 'done', 1),
+    (2, 'Cover employee queries', 'in_progress', 1),
+    (3, 'Validate API response schema', 'todo', 1),
+    (4, 'Review portal smoke tests', 'in_progress', 2),
+    (5, 'Prepare release checklist', 'todo', 3)
+ON CONFLICT (id) DO NOTHING;
