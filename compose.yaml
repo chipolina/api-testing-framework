@@ -17,5 +17,20 @@ services:
       timeout: 5s
       retries: 10
 
+  api:
+    build: .
+    container_name: api-testing-local-api
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: api_testing
+      DB_USER: test_user
+      DB_PASSWORD: test_password
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   postgres_data:

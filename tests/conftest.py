@@ -7,7 +7,15 @@ import pytest
 import requests
 
 from clients.api_client import ApiClient
-from config import BASE_URL, DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+from config import (
+    BASE_URL,
+    DB_HOST,
+    DB_NAME,
+    DB_PASSWORD,
+    DB_PORT,
+    DB_USER,
+    LOCAL_API_BASE_URL,
+)
 
 
 @pytest.fixture
@@ -24,6 +32,11 @@ def api_client():
         yield client
     finally:
         client.close()
+
+
+@pytest.fixture
+def local_api_base_url():
+    return LOCAL_API_BASE_URL.rstrip("/")
 
 
 @pytest.fixture
