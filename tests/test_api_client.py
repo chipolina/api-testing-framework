@@ -102,3 +102,55 @@ def test_http_methods_use_request(
         **kwargs,
         timeout=10.0,
     )
+
+
+@allure.title("GET request propagates connection error")
+@allure.feature("API Client")
+@allure.story("Error handling")
+def test_get_propagates_connection_error():
+    client = ApiClient("https://example.com")
+    client.session.request = Mock(
+        side_effect=requests.exceptions.ConnectionError
+    )
+
+    with pytest.raises(requests.exceptions.ConnectionError):
+        client.get("/booking/123")
+
+
+@allure.title("HTTP 500 response is returned to the caller")
+@allure.feature("API Client")
+@allure.story("Error handling")
+def test_http_500_response_is_returned():
+    client = ApiClient("https://example.com")
+    mock_response = Mock()
+    mock_response.status_code = 500
+    mock_response.text = '{"error": "Internal Server Error"}'
+    client.session.request = Mock(return_value=mock_response)
+
+    response = client.get("/booking/123")
+
+    assert response.status_code == 500
+    assert response.text == '{"error": "Internal Server Error"}'
+
+
+
+@allure.title("HTTP 500 response raises an HTTPError when checked")
+@allure.feature("API Client")
+@allure.story("Error handling")
+def test_http_500_raises_error_when_checked():
+    client = ApiClient("https://example.com")
+    mock_response = Mock()
+    mock_response.status_code = 500
+    mock_response.text = '{"error": "Internal Server Error"}'
+    mock_response.raise_for_status = Mock(
+        side_effect=requests.exceptions.HTTPError("500 Server Error")
+    )
+    client.session.request = Mock(return_value=mock_response)
+
+    response = client.get("/booking/123")
+
+    with pytest.raises(requests.exceptions.HTTPError):
+        response.raise_for_status()
+
+    mock_response.raise_for_status.assert_called_once_with()
+

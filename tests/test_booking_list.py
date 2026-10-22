@@ -171,3 +171,23 @@ def test_booking_model_rejects_invalid_dates():
     with allure.step("Validate booking with checkout before check-in"):
         with pytest.raises(ValidationError):
             Booking.model_validate(invalid_booking)
+
+
+@allure.title("Reject booking without required firstname")
+@allure.feature("Booking API")
+@allure.story("Model validation")
+def test_booking_model_rejects_missing_firstname():
+    invalid_booking = {
+        "lastname": "Smith",
+        "totalprice": 100,
+        "depositpaid": True,
+        "bookingdates": {
+            "checkin": "2026-10-21",
+            "checkout": "2026-10-25",
+        },
+        "additionalneeds": "",
+    }
+
+    with allure.step("Validate booking without firstname"):
+        with pytest.raises(ValidationError):
+            Booking.model_validate(invalid_booking)
