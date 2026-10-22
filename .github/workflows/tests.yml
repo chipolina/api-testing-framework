@@ -19,6 +19,7 @@ jobs:
       DB_NAME: api_testing
       DB_USER: test_user
       DB_PASSWORD: test_password
+      LOCAL_API_BASE_URL: http://localhost:8000
 
     services:
       postgres:
@@ -60,6 +61,22 @@ jobs:
         env:
           PGPASSWORD: ${{ env.DB_PASSWORD }}
 
+      - name: Migrate database for the local API
+        run: python -m scripts.migrate_db
+
+      - name: Start local API
+        run: |
+          uvicorn app.main:app --host 127.0.0.1 --port 8000 > /tmp/local-api.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent "$LOCAL_API_BASE_URL/health"; then
+              echo
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/local-api.log
+          exit 1
+
       - name: Run tests
         run: python -m pytest
 
@@ -99,6 +116,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
+      contents: read
       pages: write
       id-token: write
 
