@@ -61,6 +61,9 @@ jobs:
         env:
           PGPASSWORD: ${{ env.DB_PASSWORD }}
 
+      - name: Migrate database for the local API
+        run: python -m scripts.migrate_db
+
       - name: Start local API
         run: |
           uvicorn app.main:app --host 127.0.0.1 --port 8000 > /tmp/local-api.log 2>&1 &
@@ -113,6 +116,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
+      contents: read
       pages: write
       id-token: write
 

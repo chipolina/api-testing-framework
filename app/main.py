@@ -1,4 +1,5 @@
 import psycopg
+from psycopg.rows import dict_row
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 
@@ -34,6 +35,7 @@ def get_connection():
         dbname=DB_NAME,
         user=DB_USER,
         password=DB_PASSWORD,
+        row_factory=dict_row,
     )
 
 
