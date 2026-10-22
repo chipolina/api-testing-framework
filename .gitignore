@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+
+# PyCharm
+.idea/
+
+# Allure reports
+allure-results/
+allure-report/
